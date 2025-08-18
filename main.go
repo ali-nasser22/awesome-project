@@ -4,6 +4,7 @@ import (
 	"awesomeProject/db"
 	"awesomeProject/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,6 +24,21 @@ func main() {
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"events": events,
+		})
+	})
+
+	r.GET("/events/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		myId, _ := strconv.ParseInt(id, 10, 64)
+		myEvent, err := models.GetEventById(myId)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"event": myEvent,
 		})
 	})
 
