@@ -2,9 +2,7 @@ package main
 
 import (
 	"awesomeProject/db"
-	"awesomeProject/models"
-	"net/http"
-	"strconv"
+	"awesomeProject/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,52 +13,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/events", func(c *gin.Context) {
-		events, err := models.GetAllEvents()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
-			})
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"events": events,
-		})
-	})
-
-	r.GET("/events/:id", func(c *gin.Context) {
-		id := c.Param("id")
-		myId, _ := strconv.ParseInt(id, 10, 64)
-		myEvent, err := models.GetEventById(myId)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"event": myEvent,
-		})
-	})
-
-	r.POST("/events", func(c *gin.Context) {
-		var event models.Event
-		err := c.ShouldBindJSON(&event)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		createdStatus, err := event.Save()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
-		}
-		c.JSON(createdStatus, gin.H{
-			"message": "event created successfully",
-		})
-	})
+	routes.RegisterRoutes(r)
 
 	err := r.Run(":8080") // localhost:8080
 	if err != nil {
