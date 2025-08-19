@@ -12,12 +12,12 @@ type Event struct {
 	Description string    `json:"description" binding:"required"`
 	Location    string    `json:"location" binding:"required"`
 	DateTime    time.Time `json:"dateTime"`
-	UserID      int64     `json:"userID" binding:"required"`
+	UserID      int64     `json:"userID"`
 }
 
 var events []Event
 
-func (e Event) Save() (int, error) {
+func (e *Event) Save() (int, error) {
 	query := "INSERT INTO events (name,description,dateTime, location,userId) VALUES (?, ?,?,?,?)"
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -73,7 +73,7 @@ func GetEventById(id int64) (Event, error) {
 	return event, nil
 }
 
-func (e Event) UpdateEventById(id int64) error {
+func (e *Event) UpdateEventById(id int64) error {
 	query := "UPDATE events SET name=?,description=?,location=?,dateTime=? WHERE id=?"
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {

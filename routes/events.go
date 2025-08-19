@@ -46,7 +46,7 @@ func saveEvent(c *gin.Context) {
 		return
 	}
 
-	err := utils.VerifyToken(token)
+	userId, err := utils.VerifyToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": err.Error(),
@@ -62,6 +62,7 @@ func saveEvent(c *gin.Context) {
 		})
 		return
 	}
+	event.UserID = userId
 	createdStatus, err := event.Save()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -18,29 +18,28 @@ func GenerateToken(email string, userId int64) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-func VerifyToken(tokenString string) error {
+func VerifyToken(tokenString string) (int64, error) {
 	parsedToken, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return secretKey, nil
+		return []byte(secretKey), nil
 	})
 	if err != nil {
-		return errors.New("invalid token")
+		return 0, errors.New("invalid token")
 	}
 	token := parsedToken.Valid
 	if !token {
-		return errors.New("invalid token")
+		return 0, errors.New("invalid token")
 	}
-	// just to know how those can be extracted
-	/*
-		claims, ok := parsedToken.Claims.(jwt.MapClaims)
-		if !ok {
-			return errors.New("invalid token")
-		}
-		email := claims["email"].(string)
-		userId := claims["userId"].(int64)
-	*/
-	return nil
+
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, errors.New("invalid token")
+	}
+	// email := claims["email"].(string)
+	userId := int64(claims["userId"].(float64))
+
+	return userId, nil
 }
