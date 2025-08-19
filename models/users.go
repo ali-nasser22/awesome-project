@@ -3,6 +3,9 @@ package models
 import (
 	"awesomeProject/db"
 	"awesomeProject/utils"
+	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -26,6 +29,22 @@ func (u User) Save() error {
 	_, err = stmt.Exec(u.Email, hashedPassword)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (u User) ValidateCredentials() error {
+
+	query := "SELECT password FROM users WHERE email = ?"
+	row := db.DB.QueryRow(query, u.Email)
+	var retrievesPassword string
+	err := row.Scan(&retrievesPassword)
+	if err != nil {
+		return err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(retrievesPassword), []byte(u.Password))
+	if err != nil {
+		return errors.New("invalid credentials")
 	}
 	return nil
 }

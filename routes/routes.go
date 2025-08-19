@@ -13,4 +13,5 @@ func RegisterRoutes(r *gin.Engine) {
 
 	/* Users Routes*/
 	r.POST("/signup", saveUser)
+	r.POST("/login", login)
 }
