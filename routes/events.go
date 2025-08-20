@@ -2,7 +2,6 @@ package routes
 
 import (
 	"awesomeProject/models"
-	"awesomeProject/utils"
 	"net/http"
 	"strconv"
 
@@ -37,25 +36,9 @@ func getEvent(c *gin.Context) {
 }
 
 func saveEvent(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "token required",
-		})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
+	userId := c.GetInt64("userId")
 	var event models.Event
-	err = c.ShouldBindJSON(&event)
+	err := c.ShouldBindJSON(&event)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
